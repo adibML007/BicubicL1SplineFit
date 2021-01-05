@@ -2,35 +2,19 @@
 clear
 clc
 %% Data Acquisition
-% A=randi([1 900],10,1);
-% B=[10*ones(10,1) ;20*ones(10,1) ;30*ones(10,1) ;40*ones(10,1) ;...
-%     50*ones(10,1) ;60*ones(10,1) ;70*ones(10,1) ;80*ones(10,1);...
-%     90*ones(10,1) ;100*ones(10,1)];
-% A=[142,874,862,437,721,128,380,825,713,864 142,874,862,437,721,128,380,825,713,864 142,874,862,437,721,128,380,825,713,864 142,874,862,437,721,128,380,825,713,864]; %Mars
-% A=[23 2 30 33 24 10 27 14 23 6]; %Volcano_25x25
-% A=[565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28]; %Baltimore_1000x1000
-A=[565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28 565 26 222 37 78 659 556 254 761 28];%Mars_75x75
-% A=[127   777   766   389   641   114   338   733   634   768 127   777   766   389   641   114   338   733   634   768];
-% A=[652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772];%Killeen_100x100
-C=A+74;
+A=[652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772 652 725 102 731 506 79 223 438 767 772];%Killeen_100x100
+% Define input data size with N where N = n means (n+1) x (n+1) dataset
+n = 9;
+C = A + n;
 %Load Dataset
-% load('Baltimore_1000x1000.mat');
-% load('Volcano.mat');
 load('Killeen_901x901.mat');
-% load('hello.mat');
-% A=1;
-% C=122;
-% load('Baltimore_1000x1000.mat')
-%load('Mars.mat');
 %Choose Subset Range
-for counter=1:10
+for counter=1
     x1=A(counter);
     x2=C(counter);
     y1=x1;
     y2=x2;
-    zMtemp=double(M(x1:x2,y1:y2,:));
-    %     zMtemp=hello;
-    
+    zMtemp=double(J(x1:x2,y1:y2,:));    
     %% Pre-processing
     xM_given=(1:length(x1:x2));
     yM_given=(1:length(y1:y2));
@@ -38,7 +22,10 @@ for counter=1:10
     xM=reshape(Xtemp',1,numel(Xtemp));
     yM=reshape(Ytemp',1,numel(Ytemp));
     zM=reshape(zMtemp',1,numel(zMtemp));
-    x=linspace(1,75,15);
+    % Define ratio of given data to node size where ratio = r means r x r
+    % nodes are selected.
+    ratio = 0.5;
+    x=linspace(1,n+1,(n+1)*ratio);
     y=x;
     % Calculate constant xMyM matrix
     xMyM=[];
@@ -58,12 +45,8 @@ for counter=1:10
     for i=1:length(x)
         for j=1:length(y)
             z0(i,j)=b(1) + b(2).*x(i) + b(3).*y(j) + b(4).*x(i).*y(j);
-            %             %         z0(i,j)=mean(zM);
         end
     end
-    %    z0=z_final;
-    
-    
     %% Backtracking Strategy
     alpha=0.25;
     beta=0.5;
@@ -77,8 +60,6 @@ for counter=1:10
     Apprx_error=zeros();
     t=1;
     iter=0;
-    % fprintf('Iteration no = %d Norm of Gradient = %2.6f Approximation Error = %2.6f \n',...
-    %     iter,norm(delzij,'fro'),fun_val);
     while iter<100
         iter=iter+1;
         t=s;
@@ -124,7 +105,7 @@ for counter=1:10
     figure('Name','Iteration Number by Approximation Error')
     set(gcf, 'Units', 'Normalized', 'OuterPosition', [0 0 1 1]);
     plot(Iteration_number,Apprx_error,'r-o')
-    print(strcat('ItervsError_',num2str(counter)),'-djpeg')
+%     print(strcat('ItervsError_',num2str(counter)),'-djpeg')
     
     % 2. Approximated 3D Spline Surface plot
     
@@ -142,8 +123,8 @@ for counter=1:10
     legend('Spline Surface',['Given Data Points [' num2str(size(zMtemp)) ']'],...
         ['Optimized Nodes [' num2str(size(z_final)) ']']')
     set(legend,'FontSize',12,'Location','best')
-    print(strcat('ApproximatedSpline_',num2str(counter)),'-djpeg')
-    close all
+%     print(strcat('ApproximatedSpline_',num2str(counter)),'-djpeg')
+%     close all
     
     %3. Comparison of Given, Interpolated and Approximated Spline Surfaces
     
@@ -185,9 +166,9 @@ for counter=1:10
     shading interp
     title('Approximation','FontSize',12)
     axis([-inf inf -inf inf floor(n_com) ceil(m_com)])
-    print(strcat('Given, Interpolated and Approximated 2-D Spline Surfaces'...
-        ,num2str(counter)),'-djpeg')
-    close all
+%     print(strcat('Given, Interpolated and Approximated 2-D Spline Surfaces'...
+%         ,num2str(counter)),'-djpeg')
+%     close all
     
     
     % 4. Comparison of Given, Interpolated and Approximated surface contour
@@ -202,26 +183,7 @@ for counter=1:10
     subplot (1,3,3),contour(xplot,yplot,zplot')
     
     title('Approximation','FontSize',12)
-    print(strcat('Given, Interpolated and Approximated Surface Contours',...
-        num2str(counter)),'-djpeg')
-    close all
-    
-    %% Save Experiment Results
-    
-    savefile=['testResults',num2str(counter),'.mat'];
-    save(savefile,'iter','x1','x2','x','y','xi','yi','zi','Apprx_error',...
-        'z0','z_final','e1','zplot');
+%     print(strcat('Given, Interpolated and Approximated Surface Contours',...
+%         num2str(counter)),'-djpeg')
+%     close all
 end
-%% Table and Excel Sheet Generation
-e=zeros();
-error=zeros();
-sample=zeros();
-for counter=1:10
-    load(['testResults',num2str(counter),'.mat'])
-    e(counter)=e1;
-    error(counter)=Apprx_error(end);
-    sample(counter)=counter;
-end
-T=table(sample',e',error','VariableNames',{'Sample_No' 'Computing_Time' 'Approximation_Error'});
-filename = 'Approx_bi.xlsx';
-writetable(T,filename,'Sheet',1,'Range','D1')
