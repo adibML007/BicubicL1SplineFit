@@ -1,4 +1,4 @@
-clear
+clear;
 xM=[-2 -1.5 1.2 3.5 5];
 yM=xM;
 x=xM;
